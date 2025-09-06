@@ -1,0 +1,23 @@
+<div class="settingsPlugin">
+    <h3>External Temp Reader Settings</h3>
+    <div class="form-group">
+        <label for="tag_uuid">WirelessTag UUID</label>
+        <input type="text" id="tag_uuid" class="form-control" data-bind="value: settings.plugins.external_temp_reader.tag_uuid" placeholder="e.g., 5136d0e3-e226-43b2-b9a1-f843a0220f63">
+        <small class="help-block">Your WirelessTag sensor UUID. To get it: Log into my.wirelesstag.net → Select your tag → Enable sharing → Copy UUID from the sharing URL</small>
+    </div>
+    <div class="form-group">
+        <label for="base_url">API Base URL</label>
+        <input type="text" id="base_url" class="form-control" data-bind="value: settings.plugins.external_temp_reader.base_url">
+        <small class="help-block">WirelessTag API endpoint (default works for most users)</small>
+    </div>
+    <div class="form-group">
+        <label for="polling_interval">Polling Interval (seconds)</label>
+        <input type="number" id="polling_interval" class="form-control" data-bind="value: settings.plugins.external_temp_reader.polling_interval" min="10" max="300">
+        <small class="help-block">How often to fetch temperature data (10-300 seconds)</small>
+    </div>
+    <div class="form-group">
+        <label for="xml_temp_path">XML Temperature Path (Advanced)</label>
+        <input type="text" id="xml_temp_path" class="form-control" data-bind="value: settings.plugins.external_temp_reader.xml_temp_path">
+        <small class="help-block">XPath for custom XML format (leave default for WirelessTag API)</small>
+    </div>
+</div>
