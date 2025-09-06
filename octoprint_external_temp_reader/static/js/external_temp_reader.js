@@ -100,6 +100,21 @@ $(function() {
                 return [point.time, point.temperature];
             });
             
+            // Calculate adaptive Y-axis range
+            if (filteredData.length > 0) {
+                var temps = filteredData.map(function(point) { return point.temperature; });
+                var minTemp = Math.min.apply(Math, temps);
+                var maxTemp = Math.max.apply(Math, temps);
+                
+                // Add padding (10% on each side or at least 1 degree)
+                var range = maxTemp - minTemp;
+                var padding = Math.max(range * 0.1, 1.0);
+                
+                var yaxis = self.chart.getAxes().yaxis;
+                yaxis.options.min = minTemp - padding;
+                yaxis.options.max = maxTemp + padding;
+            }
+            
             // Update chart
             self.chart.setData([{
                 label: "Chamber Temperature",
