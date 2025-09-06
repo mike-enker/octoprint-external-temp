@@ -274,12 +274,49 @@ $(function() {
         };
         
         self.onAfterBinding = function() {
+            // Load temperature history from server
+            $.ajax({
+                url: API_BASEURL + "plugin/external_temp_reader",
+                type: "GET",
+                dataType: "json",
+                success: function(response) {
+                    if (response.history && Array.isArray(response.history)) {
+                        console.log("External Temp Reader: Loaded " + response.history.length + " historical data points");
+                        self.temperatureHistory = response.history;
+                        
+                        // Update statistics with loaded data
+                        self.updateStatistics();
+                        
+                        // Update current temperature if available
+                        if (response.current_temp !== null && response.current_temp !== undefined) {
+                            self.temperature(response.current_temp.toFixed(1) + "°C");
+                            self.connectionStatus("Connected");
+                            var lastPoint = response.history[response.history.length - 1];
+                            if (lastPoint) {
+                                self.lastUpdate(new Date(lastPoint.time).toLocaleTimeString());
+                            }
+                        }
+                        
+                        // Initialize chart with loaded data
+                        if ($("#chamber-temperature-chart").length > 0) {
+                            self.initializeChart();
+                            self.updateChart();
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("External Temp Reader: Failed to load history:", error);
+                }
+            });
+            
             // Wait for tab to be visible and Flot to be available
             setTimeout(function() {
                 // Check if we're on the tab and Flot is available
                 if ($("#chamber-temperature-chart").length > 0) {
                     console.log("External Temp Reader: Initializing chart");
-                    self.initializeChart();
+                    if (!self.chart) {
+                        self.initializeChart();
+                    }
                     
                     // Set up periodic chart updates (every 5 seconds)
                     setInterval(function() {

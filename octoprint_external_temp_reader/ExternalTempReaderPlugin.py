@@ -3,10 +3,10 @@ import time
 from xml.etree import ElementTree as ET
 
 import requests
-from octoprint.plugin import SettingsPlugin, StartupPlugin, ShutdownPlugin, TemplatePlugin, AssetPlugin
+from octoprint.plugin import SettingsPlugin, StartupPlugin, ShutdownPlugin, TemplatePlugin, AssetPlugin, SimpleApiPlugin
 
 
-class ExternalTempReaderPlugin(SettingsPlugin, TemplatePlugin, AssetPlugin, StartupPlugin, ShutdownPlugin):
+class ExternalTempReaderPlugin(SettingsPlugin, TemplatePlugin, AssetPlugin, StartupPlugin, ShutdownPlugin, SimpleApiPlugin):
     def __init__(self):
         super().__init__()
         self.polling_thread = None
@@ -16,9 +16,14 @@ class ExternalTempReaderPlugin(SettingsPlugin, TemplatePlugin, AssetPlugin, Star
         self.polling_interval = 10
         self.xml_temp_path = None  # XPath-like path for XML parsing
         self.current_chamber_temp = None
+        self.temperature_history = []  # Store temperature history
+        self.max_history_hours = 24  # Maximum hours of history to keep
 
     def on_after_startup(self):
         self._logger.info("ExternalTempReader plugin loaded. Loading configuration...")
+        # Clear history on startup
+        self.temperature_history = []
+        self._logger.info("Temperature history cleared on startup")
         self.load_configuration()
         self.start_polling_thread()
     
@@ -87,6 +92,9 @@ class ExternalTempReaderPlugin(SettingsPlugin, TemplatePlugin, AssetPlugin, Star
                     if temp is not None:
                         self.current_chamber_temp = temp
                         self._logger.info(f"Chamber temperature updated: {temp:.2f}°C")
+                        
+                        # Add to history
+                        self._add_to_history(temp)
                         
                         # Send temperature update to frontend
                         self._send_temperature_update(temp)
@@ -195,3 +203,31 @@ class ExternalTempReaderPlugin(SettingsPlugin, TemplatePlugin, AssetPlugin, Star
             self._logger.debug(f"Sent temperature update to frontend: {temperature:.2f}°C")
         except Exception as e:
             self._logger.error(f"Failed to send temperature update to frontend: {e}")
+    
+    def _add_to_history(self, temperature):
+        """Add temperature reading to history and cleanup old data."""
+        import time
+        current_time = int(time.time() * 1000)  # milliseconds
+        
+        # Add new data point
+        self.temperature_history.append({
+            "time": current_time,
+            "temperature": temperature
+        })
+        
+        # Cleanup old data (older than max_history_hours)
+        cutoff_time = current_time - (self.max_history_hours * 3600 * 1000)
+        self.temperature_history = [
+            point for point in self.temperature_history 
+            if point["time"] >= cutoff_time
+        ]
+        
+        self._logger.debug(f"History size: {len(self.temperature_history)} points")
+    
+    def on_api_get(self, request):
+        """Handle API GET requests."""
+        # Send full temperature history when requested
+        return {
+            "history": self.temperature_history,
+            "current_temp": self.current_chamber_temp
+        }
