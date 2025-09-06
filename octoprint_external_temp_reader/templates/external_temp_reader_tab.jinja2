@@ -1,0 +1,61 @@
+<div id="tab_plugin_external_temp_reader">
+    <div class="row-fluid">
+        <div class="span12">
+            <h3>Chamber Temperature Monitor</h3>
+            
+            <!-- Current Temperature Display -->
+            <div class="temperature-display">
+                <div class="row-fluid">
+                    <div class="span3">
+                        <h4>Current Temperature</h4>
+                        <div class="temperature-current">
+                            <span class="temperature-value" data-bind="text: temperature" style="font-size: 2em; font-weight: bold;">--</span>
+                        </div>
+                        <small>Last Update: <span data-bind="text: lastUpdate">Never</span></small>
+                    </div>
+                    <div class="span3">
+                        <h4>Statistics</h4>
+                        <div>
+                            <strong>Min:</strong> <span data-bind="text: minTemp">--</span><br>
+                            <strong>Max:</strong> <span data-bind="text: maxTemp">--</span><br>
+                            <strong>Avg:</strong> <span data-bind="text: avgTemp">--</span>
+                        </div>
+                    </div>
+                    <div class="span6">
+                        <h4>Data Collection</h4>
+                        <div>
+                            <strong>Status:</strong> <span data-bind="text: connectionStatus">Disconnected</span><br>
+                            <strong>Data Points:</strong> <span data-bind="text: dataPointCount">0</span><br>
+                            <button class="btn btn-small" data-bind="click: clearHistory">Clear History</button>
+                            <button class="btn btn-small" data-bind="click: exportData">Export CSV</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <hr>
+            
+            <!-- Temperature Chart -->
+            <div class="temperature-chart-container">
+                <h4>Temperature History</h4>
+                <div id="chamber-temperature-chart" style="height: 350px; width: 100%;"></div>
+            </div>
+            
+            <!-- Time Range Controls -->
+            <div class="chart-controls" style="margin-top: 10px;">
+                <div class="btn-group">
+                    <button class="btn btn-small" data-bind="click: function() { setTimeRange(10); }">10 min</button>
+                    <button class="btn btn-small" data-bind="click: function() { setTimeRange(30); }">30 min</button>
+                    <button class="btn btn-small active" data-bind="click: function() { setTimeRange(60); }">1 hour</button>
+                    <button class="btn btn-small" data-bind="click: function() { setTimeRange(180); }">3 hours</button>
+                    <button class="btn btn-small" data-bind="click: function() { setTimeRange(360); }">6 hours</button>
+                    <button class="btn btn-small" data-bind="click: function() { setTimeRange(720); }">12 hours</button>
+                    <button class="btn btn-small" data-bind="click: function() { setTimeRange(1440); }">24 hours</button>
+                </div>
+                <label style="margin-left: 20px; display: inline;">
+                    <input type="checkbox" data-bind="checked: autoScroll"> Auto-scroll
+                </label>
+            </div>
+        </div>
+    </div>
+</div>

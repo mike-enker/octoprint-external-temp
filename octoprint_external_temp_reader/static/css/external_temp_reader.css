@@ -1,0 +1,83 @@
+/* Chamber Temperature Monitor Styles */
+
+#tab_plugin_external_temp_reader .temperature-display {
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+#tab_plugin_external_temp_reader .temperature-current {
+    text-align: center;
+    padding: 10px;
+    background: white;
+    border-radius: 4px;
+    margin: 10px 0;
+}
+
+#tab_plugin_external_temp_reader .temperature-value {
+    color: #FF8C00;
+    font-weight: bold;
+}
+
+#tab_plugin_external_temp_reader .temperature-chart-container {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px;
+}
+
+#tab_plugin_external_temp_reader .chart-controls {
+    text-align: center;
+    margin-top: 15px;
+    padding: 10px;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+#tab_plugin_external_temp_reader .chart-controls .btn-group {
+    display: inline-block;
+}
+
+#tab_plugin_external_temp_reader h3 {
+    color: #333;
+    border-bottom: 2px solid #FF8C00;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+#tab_plugin_external_temp_reader h4 {
+    color: #666;
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+/* Navbar temperature display */
+#navbar_plugin_external_temp_reader {
+    padding: 0 10px;
+}
+
+#navbar_plugin_external_temp_reader .navbar-text {
+    color: #FF8C00;
+    font-weight: bold;
+}
+
+#navbar_plugin_external_temp_reader .fa-thermometer-half {
+    margin-right: 5px;
+}
+
+/* Tooltip styles */
+#tooltip {
+    position: absolute;
+    display: none;
+    border: 1px solid #666;
+    padding: 2px 5px;
+    background-color: #fff;
+    border-radius: 3px;
+    font-size: 12px;
+    z-index: 1000;
+    box-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+}

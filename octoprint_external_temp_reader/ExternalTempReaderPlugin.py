@@ -137,12 +137,19 @@ class ExternalTempReaderPlugin(SettingsPlugin, TemplatePlugin, AssetPlugin, Star
                 "type": "navbar",
                 "custom_bindings": False,
                 "template": "external_temp_reader_navbar.jinja2"
+            },
+            {
+                "type": "tab",
+                "name": "Chamber Temp",
+                "template": "external_temp_reader_tab.jinja2",
+                "custom_bindings": False
             }
         ]
     
     def get_assets(self):
         return {
-            "js": ["js/external_temp_reader.js"]
+            "js": ["js/external_temp_reader.js"],
+            "css": ["css/external_temp_reader.css"]
         }
     
     def _send_temperature_update(self, temperature):

@@ -20,7 +20,7 @@ setup(
     license=plugin_license,
     packages=[plugin_package],
     package_data={
-        plugin_package: ["templates/*.jinja2", "static/js/*.js"]
+        plugin_package: ["templates/*.jinja2", "static/js/*.js", "static/css/*.css"]
     },
     include_package_data=True,
     zip_safe=False,

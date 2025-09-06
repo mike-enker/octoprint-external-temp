@@ -4,13 +4,37 @@ This plugin reads chamber temperature from a WirelessTag API and displays it in 
 
 ## Features
 
+### Core Functionality
 - Fetches temperature data from WirelessTag API endpoints
-- Displays chamber temperature in the OctoPrint navbar (top bar)
 - Works independently of printer connection status
 - Real-time temperature updates via WebSocket
-- Configurable polling interval
+- Configurable polling interval (10-300 seconds)
 - Support for custom XML temperature paths
 - Clean separation of UUID and base URL configuration
+
+### Temperature Display
+- **Navbar Display**: Shows current chamber temperature in the top bar with thermometer icon
+- **Dedicated Tab**: Full-featured "Chamber Temp" tab with professional temperature monitoring interface
+
+### Chamber Temperature Tab Features
+- **Interactive Temperature Chart**
+  - Real-time updating graph with orange theme
+  - Hover tooltips showing exact time and temperature
+  - Auto-scrolling option to follow latest data
+  - Time range controls (10 min to 24 hours)
+  - Stores up to 24 hours of temperature history
+
+- **Statistics Dashboard**
+  - Large current temperature display
+  - Min/Max/Average temperature calculations
+  - Data point counter
+  - Connection status indicator
+  - Last update timestamp
+
+- **Data Management**
+  - Clear History button to reset all data
+  - Export to CSV for data analysis
+  - Automatic data trimming after 24 hours
 
 ## Building the Plugin
 
@@ -106,8 +130,22 @@ The plugin:
 
 ## Where Temperature is Displayed
 
-- **Navbar**: Shows "Chamber: XX.X°C" with a thermometer icon in the top bar
-- **Logs**: Temperature updates are logged for debugging
+### 1. Navbar (Top Bar)
+- Shows "Chamber: XX.X°C" with a thermometer icon
+- Always visible for quick temperature monitoring
+- Updates in real-time as new data arrives
+
+### 2. Chamber Temp Tab
+- Dedicated tab in OctoPrint's main interface
+- Professional temperature monitoring dashboard
+- Interactive chart with historical data
+- Statistics and data management tools
+- No interference with printer temperature displays
+
+### 3. System Logs
+- Temperature updates are logged for debugging
+- Access via Settings → Logs
+- Filter by "external_temp_reader" for plugin-specific logs
 
 ## Troubleshooting
 
@@ -128,9 +166,17 @@ The plugin:
 - Verify the tag's battery level and signal strength
 
 ### Temperature not showing in navbar
-- Clear browser cache and refresh
+- Clear browser cache and refresh (Ctrl+F5 or Cmd+Shift+R)
 - Check browser console (F12) for JavaScript errors
 - Verify the plugin's JavaScript file loaded correctly
+
+### Chamber Temp tab chart not displaying
+- Open browser console (F12 → Console)
+- Click on the "Chamber Temp" tab
+- Look for "External Temp Reader:" messages
+- Check for "Chart initialized successfully" or error messages
+- Clear browser cache if chart container is missing
+- Ensure JavaScript is enabled in your browser
 
 ## API Response Format
 
@@ -193,15 +239,40 @@ octoprint-external-temp/
 ├── setup.py                        # Package setup script
 ├── dist/                          # Built distributions (not in git)
 └── octoprint_external_temp_reader/ # Plugin package
-    ├── __init__.py                # Plugin initialization
+    ├── __init__.py                # Plugin initialization & hooks
     ├── ExternalTempReaderPlugin.py # Main plugin code
     ├── static/                    # Static assets
+    │   ├── css/
+    │   │   └── external_temp_reader.css     # Styling for tab and navbar
     │   └── js/
-    │       └── external_temp_reader.js
+    │       └── external_temp_reader.js      # Chart logic and UI updates
     └── templates/                 # Jinja2 templates
-        ├── external_temp_reader_navbar.jinja2
-        └── external_temp_reader_settings.jinja2
+        ├── external_temp_reader_navbar.jinja2   # Navbar temperature display
+        ├── external_temp_reader_settings.jinja2 # Settings page
+        └── external_temp_reader_tab.jinja2      # Chamber temp tab
 ```
+
+## Usage Guide
+
+### Initial Setup
+1. Install the plugin and restart OctoPrint
+2. Navigate to Settings → External Temp Reader
+3. Enter your WirelessTag UUID
+4. Save settings and refresh the page
+
+### Using the Chamber Temp Tab
+1. Click on the "Chamber Temp" tab in OctoPrint
+2. Temperature data will begin populating the chart
+3. Use time range buttons to zoom in/out (10 min - 24 hours)
+4. Enable "Auto-scroll" to keep the latest data in view
+5. Hover over the chart to see exact temperature values
+6. Export data as CSV for external analysis
+
+### Monitoring Temperature
+- **Quick View**: Check navbar for current temperature
+- **Detailed View**: Use Chamber Temp tab for full history
+- **Statistics**: Monitor Min/Max/Average on the dashboard
+- **Data Export**: Download CSV for spreadsheet analysis
 
 ## Development Tips
 
@@ -213,16 +284,42 @@ tail -f ~/.octoprint/logs/octoprint.log | grep external_temp_reader
 2. **Test changes without reinstalling**:
    - Install in development mode (`pip install -e .`)
    - Changes to Python files require OctoPrint restart
-   - Changes to JS/templates may require browser refresh
+   - Changes to JS/CSS/templates require browser cache clear (Ctrl+F5)
 
 3. **Debug JavaScript**:
    - Open browser console (F12)
    - Look for "External Temp Reader:" messages
+   - Check for chart initialization logs
 
-4. **Version bumping**:
+4. **Debug Chart Issues**:
+   - Verify Flot library is loaded: `$.plot` in console
+   - Check chart container exists: `$("#chamber-temperature-chart").length`
+   - Look for JavaScript errors in console
+
+5. **Version bumping**:
    - Update version in `setup.py`
    - Update version in `octoprint_external_temp_reader/__init__.py`
    - Tag the release in git
+
+## Technical Details
+
+### API Integration
+- Uses WirelessTag's public API endpoint for shared tags
+- Polls data at configurable intervals (default: 60 seconds)
+- Parses XML response with namespace handling
+- Extracts temperature from `temp_degC` field
+
+### Frontend Architecture
+- KnockoutJS for data binding (OctoPrint standard)
+- Flot library for chart rendering
+- WebSocket for real-time updates
+- Custom CSS for consistent theming
+
+### Data Storage
+- In-memory storage of temperature history
+- Maximum 2,880 data points (24 hours at 30-second intervals)
+- Automatic cleanup of old data
+- No database required
 
 ## License
 
@@ -231,3 +328,9 @@ Apache 2.0
 ## Author
 
 Mike (githubuser@terasec.com)
+
+## Acknowledgments
+
+- OctoPrint community for plugin development resources
+- WirelessTag for providing public API access
+- Flot charts library for visualization

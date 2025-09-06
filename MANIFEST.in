@@ -1,3 +1,4 @@
 include README.md
 recursive-include octoprint_external_temp_reader/templates *.jinja2
 recursive-include octoprint_external_temp_reader/static/js *.js
+recursive-include octoprint_external_temp_reader/static/css *.css
