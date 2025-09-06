@@ -8,9 +8,11 @@ This plugin reads chamber temperature from a WirelessTag API and displays it in 
 - Fetches temperature data from WirelessTag API endpoints
 - Works independently of printer connection status
 - Real-time temperature updates via WebSocket
-- Configurable polling interval (10-300 seconds)
+- Configurable polling interval (10-300 seconds) with immediate effect on change
 - Support for custom XML temperature paths
 - Clean separation of UUID and base URL configuration
+- Persistent temperature history across page refreshes (clears on server restart)
+- Server-side history storage with automatic 24-hour cleanup
 
 ### Temperature Display
 - **Navbar Display**: Shows current chamber temperature in the top bar with thermometer icon
@@ -19,10 +21,12 @@ This plugin reads chamber temperature from a WirelessTag API and displays it in 
 ### Chamber Temperature Tab Features
 - **Interactive Temperature Chart**
   - Real-time updating graph with orange theme
+  - Adaptive Y-axis scaling for better visualization (no fixed zero baseline)
   - Hover tooltips showing exact time and temperature
   - Auto-scrolling option to follow latest data
   - Time range controls (10 min to 24 hours)
   - Stores up to 24 hours of temperature history
+  - History persists across page refreshes
 
 - **Statistics Dashboard**
   - Large current temperature display
@@ -66,12 +70,11 @@ pip install -e .
 
 1. **Build the distribution package**:
 ```bash
-python setup.py sdist bdist_wheel
+python setup.py sdist
 ```
 
-This creates two files in the `dist/` directory:
+This creates a distribution file in the `dist/` directory:
 - `OctoPrint-ExternalTempReader-1.0.0.tar.gz` - Source distribution
-- `OctoPrint_ExternalTempReader-1.0.0-py2.py3-none-any.whl` - Wheel distribution
 
 2. **Clean build artifacts** (optional):
 ```bash
@@ -99,16 +102,16 @@ pip install dist/OctoPrint-ExternalTempReader-1.0.0.tar.gz
 1. Build the plugin as described above
 2. In OctoPrint, go to Settings → Plugin Manager
 3. Click "Get More..." → "...from an uploaded file"
-4. Select the `.tar.gz` or `.whl` file from `dist/`
+4. Select the `.tar.gz` file from `dist/`
 5. Click Install
 
 ## Configuration
 
 1. Navigate to OctoPrint Settings → External Temp Reader
 2. Configure the following settings:
-   - **WirelessTag UUID**: Your sensor's UUID (e.g., `5136d0e3-e226-43b2-b9a1-f843a0220f63`)
+   - **WirelessTag UUID**: Your sensor's UUID (e.g., `111aaab3-e991-43c7-b9a1-f999b0999f99`)
    - **API Base URL**: Usually the default is fine (`https://my.wirelesstag.net/ethLogShared.asmx/GetLatestTemperatureRawDataByUUID`)
-   - **Polling Interval**: How often to fetch temperature (10-300 seconds, default 60)
+   - **Polling Interval**: How often to fetch temperature (10-300 seconds, default 60) - changes take effect immediately
    - **XML Temperature Path**: Leave default for WirelessTag API
 
 ### Getting Your WirelessTag UUID
@@ -124,9 +127,12 @@ pip install dist/OctoPrint-ExternalTempReader-1.0.0.tar.gz
 The plugin:
 1. Polls the WirelessTag API at the configured interval
 2. Parses the XML response to extract temperature in Celsius
-3. Sends temperature updates to the frontend via WebSocket
-4. Displays the chamber temperature in the navbar (top bar)
-5. Works independently of printer connection status
+3. Stores temperature history on the server (up to 24 hours)
+4. Sends temperature updates to the frontend via WebSocket
+5. Displays the chamber temperature in the navbar (top bar)
+6. Works independently of printer connection status
+7. Loads historical data when the page is refreshed
+8. Automatically applies setting changes without requiring restart
 
 ## Where Temperature is Displayed
 
@@ -177,6 +183,38 @@ The plugin:
 - Check for "Chart initialized successfully" or error messages
 - Clear browser cache if chart container is missing
 - Ensure JavaScript is enabled in your browser
+
+## Recent Improvements
+
+### Version 1.0.0 Features
+- **Persistent History**: Temperature history now persists across page refreshes (stored server-side)
+- **Adaptive Chart Scaling**: Y-axis automatically adjusts to show relevant temperature range
+- **Dynamic Settings**: Polling interval changes take effect immediately without restart
+- **Improved Tooltips**: Chart tooltips properly display time and temperature on hover
+- **API Endpoint**: Added REST API endpoint for fetching temperature history
+- **Automatic Cleanup**: Old temperature data (>24 hours) is automatically removed
+
+## Plugin API
+
+The plugin provides a REST API endpoint for accessing temperature data:
+
+### GET `/api/plugin/external_temp_reader`
+
+Returns the current temperature and historical data.
+
+**Response:**
+```json
+{
+  "history": [
+    {"time": 1725650400000, "temperature": 22.5},
+    {"time": 1725650460000, "temperature": 22.6}
+  ],
+  "current_temp": 22.6
+}
+```
+
+- `history`: Array of temperature readings with timestamps (milliseconds since epoch)
+- `current_temp`: Most recent temperature reading in Celsius
 
 ## API Response Format
 
