@@ -21,6 +21,27 @@ class ExternalTempReaderPlugin(SettingsPlugin, TemplatePlugin, AssetPlugin, Star
         self._logger.info("ExternalTempReader plugin loaded. Loading configuration...")
         self.load_configuration()
         self.start_polling_thread()
+    
+    def on_settings_save(self, data):
+        """Handle settings save and apply changes immediately."""
+        # Get the old interval before saving
+        old_interval = self.polling_interval
+        
+        # Save the settings using the parent class method
+        super().on_settings_save(data)
+        
+        # Reload configuration with new values
+        self.load_configuration()
+        
+        # Check if polling interval changed
+        if old_interval != self.polling_interval:
+            self._logger.info(f"Polling interval changed from {old_interval}s to {self.polling_interval}s, restarting polling thread")
+            # Restart the polling thread with new interval
+            self.restart_polling_thread()
+        
+        # Check if URL or UUID changed
+        if 'tag_uuid' in data or 'base_url' in data:
+            self._logger.info("API configuration changed, next poll will use new settings")
 
     def on_shutdown(self):
         self._logger.info("ExternalTempReader plugin unloaded. Stopping polling thread...")
@@ -114,8 +135,17 @@ class ExternalTempReaderPlugin(SettingsPlugin, TemplatePlugin, AssetPlugin, Star
         """Stop the polling thread."""
         self.stop_polling = True
         if self.polling_thread:
-            self.polling_thread.join()
+            self.polling_thread.join(timeout=5)  # Wait max 5 seconds
             self.polling_thread = None
+    
+    def restart_polling_thread(self):
+        """Restart the polling thread with new settings."""
+        self._logger.info("Restarting temperature polling thread...")
+        self.stop_polling_thread()
+        # Small delay to ensure thread is fully stopped
+        time.sleep(0.5)
+        self.start_polling_thread()
+        self._logger.info("Temperature polling thread restarted with new settings")
 
     def get_settings_defaults(self):
         """Default plugin settings."""
