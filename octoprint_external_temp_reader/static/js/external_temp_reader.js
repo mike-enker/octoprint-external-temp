@@ -208,23 +208,29 @@ $(function() {
                     var date = new Date(item.datapoint[0]);
                     var temp = item.datapoint[1];
                     
-                    $("#tooltip").remove();
-                    var tooltip = $('<div id="tooltip" class="tooltip-inner">')
-                        .text(date.toLocaleTimeString() + ": " + temp.toFixed(1) + "°C")
-                        .css({
-                            position: 'absolute',
-                            display: 'none',
-                            top: item.pageY - 28,
-                            left: item.pageX + 5,
-                            border: '1px solid #666',
-                            padding: '2px 5px',
-                            'background-color': '#fff',
-                            'border-radius': '3px',
-                            'font-size': '12px',
-                            'z-index': 1000
-                        }).appendTo("body").fadeIn(200);
+                    // Remove any existing tooltip
+                    $("#chamber-temp-tooltip").remove();
+                    
+                    // Create tooltip content
+                    var tooltipContent = date.toLocaleTimeString() + ": " + temp.toFixed(1) + "°C";
+                    
+                    // Create and show tooltip
+                    $('<div id="chamber-temp-tooltip">' + tooltipContent + '</div>').css({
+                        position: 'absolute',
+                        display: 'block',
+                        top: item.pageY - 40,
+                        left: item.pageX + 10,
+                        border: '1px solid #333',
+                        padding: '4px 8px',
+                        'background-color': '#ffffcc',
+                        'border-radius': '4px',
+                        'font-size': '12px',
+                        'font-weight': 'normal',
+                        'z-index': 10000,
+                        'box-shadow': '2px 2px 4px rgba(0,0,0,0.3)'
+                    }).appendTo("body");
                 } else {
-                    $("#tooltip").remove();
+                    $("#chamber-temp-tooltip").remove();
                 }
             });
         };
