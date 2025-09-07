@@ -224,6 +224,10 @@ class ExternalTempReaderPlugin(SettingsPlugin, TemplatePlugin, AssetPlugin, Star
         
         self._logger.debug(f"History size: {len(self.temperature_history)} points")
     
+    def is_api_protected(self):
+        """Explicitly declare that this API does not require authentication."""
+        return False
+    
     def on_api_get(self, request):
         """Handle API GET requests."""
         # Send full temperature history when requested
