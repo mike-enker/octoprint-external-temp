@@ -173,7 +173,7 @@ class ExternalTempReaderPlugin(SettingsPlugin, TemplatePlugin, AssetPlugin, Star
             },
             {
                 "type": "navbar",
-                "custom_bindings": False,
+                "custom_bindings": True,
                 "template": "external_temp_reader_navbar.jinja2"
             },
             {
